@@ -10,7 +10,7 @@ Jesus
 Sottomayor
 Sousa
 Fernandes
-Gonçalves
+Goncalves
 Gomes
 Lopes
 Marques
@@ -38,7 +38,7 @@ Cunha
 Pires
 Ramos
 Reis
-Simões
+Simoes
 Antunes
 Matos
 Fonseca
@@ -46,7 +46,7 @@ Machado
 Araujo
 Barbosa
 Tavares
-Lourenço
+Lourenco
 Castro
 Figueiredo
 Azevedo
