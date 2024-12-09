@@ -1,19 +1,16 @@
 from nomes import name_generator
 
 import sys
-import os
 import random
 from datetime import datetime
-from dotenv import load_dotenv
-import requests
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 
-useragent_db_dumped = False
-WIMB_URL = "https://api.whatismybrowser.com/api/v2/user_agent_database_dump_url"
 CREATE_GOOGLE_ACCOUNT_URL = "https://accounts.google.com/signup/v2/createaccount?flowName=GlifWebSignIn&flowEntry=SignUp"
 
 def main():
@@ -29,17 +26,14 @@ def main():
     print("\n$$$............GENERATING " + str(number_bots) + " GOOGLE ACCOUNTS...........$$$")
 
     user_agent = generate_random_useragent()
+    browser = setup_webdriver(user_agent)
+    browser.get(CREATE_GOOGLE_ACCOUNT_URL)
     print("\n$$$...........CONNECTED TO GOOGLE SERVICE...........$$$")
 
-    browser = connect_to_url(user_agent)
     fill_forms()
 
 
-def connect_to_url(user_agent):
-
-
-
-
+# Get random user agent from db dump
 def generate_random_useragent():
     db = open("useragent_db.txt")
     line = next(db)
@@ -50,13 +44,24 @@ def generate_random_useragent():
     return line
 
 
+# Create Firefox webdriver with random user agent
+def setup_webdriver(user_agent):
+    options = Options()
+    firefox_profile = FirefoxProfile()
+    firefox_profile.set_preference("general.useragent.override", user_agent)
+    options.profile = firefox_profile
+
+    return webdriver.Firefox(options = options)
+
+
+
+
+
 def fill_forms():
 
 
 
 # Connect to google account creation page
-browser = webdriver.Firefox()
-browser.get(CREATE_GOOGLE_ACCOUNT_URL)
 wait = WebDriverWait(browser, 20)
 wait.until(EC.element_to_be_clickable((By.NAME, "firstName")))  # sync
 
