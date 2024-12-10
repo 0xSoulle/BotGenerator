@@ -23,14 +23,18 @@ def main():
         print("!!! USAGE: python generate_bots.py <number of bots> !!!")
         number_bots = int(input("ENTER NUMBER OF BOTS: "))
 
+
     print("\n$$$............GENERATING " + str(number_bots) + " GOOGLE ACCOUNTS...........$$$")
 
-    user_agent = generate_random_useragent()
+    user_agent = generate_random_useragent():
     browser = setup_webdriver(user_agent)
+    print("get req")
     browser.get(CREATE_GOOGLE_ACCOUNT_URL)
     print("\n$$$...........CONNECTED TO GOOGLE SERVICE...........$$$")
 
-    fill_forms()
+    fill_forms(browser)
+    print("\n$$$...........DONE...........$$$")
+
 
 
 # Get random user agent from db dump
@@ -46,66 +50,74 @@ def generate_random_useragent():
 
 # Create Firefox webdriver with random user agent
 def setup_webdriver(user_agent):
-    options = Options()
-    firefox_profile = FirefoxProfile()
-    firefox_profile.set_preference("general.useragent.override", user_agent)
-    options.profile = firefox_profile
+    # options = Options()
+    # firefox_profile = FirefoxProfile()
+    # firefox_profile.set_preference("general.useragent.override", user_agent)
+    # options.profile = firefox_profile
 
-    return webdriver.Firefox(options = options)
-
-
+    return webdriver.Firefox()
 
 
 
-def fill_forms():
 
 
+def fill_forms(browser):
+    # Esgablish timeout for wait conditions
+    wait = WebDriverWait(browser, 20)
 
-# Connect to google account creation page
-wait = WebDriverWait(browser, 20)
-wait.until(EC.element_to_be_clickable((By.NAME, "firstName")))  # sync
+    # Sync with webpage loading
+    wait.until(EC.element_to_be_clickable((By.NAME, "firstName")))
 
+    # Random user gender and name generation
+    gender = random.randint(1, 2)
+    first_name, surname = name_generator.genName(gender)
 
-gender = random.randint(1, 2)
-first_name, surname = name_generator.genName(gender)
-# name form
-print("\n$$$...........FILLING ACCOUNT NAME...........$$$")
-browser.find_element(By.NAME, "firstName").clear()
-browser.find_element(By.NAME, "firstName").send_keys(first_name)
-browser.find_element(By.NAME, "lastName").clear()
-browser.find_element(By.NAME, "lastName").send_keys(surname)
-# submit the form
-browser.find_element(By.ID, "collectNameNext").click()
-print("\n$$$...........DONE...........$$$")
+    # name form
+    print("\n$$$...........FILLING ACCOUNT NAME...........$$$")
+    browser.find_element(By.NAME, "firstName").clear()
+    browser.find_element(By.NAME, "firstName").send_keys(first_name)
+    browser.find_element(By.NAME, "lastName").clear()
+    browser.find_element(By.NAME, "lastName").send_keys(surname)
+    # submit the form
+    browser.find_element(By.ID, "collectNameNext").click()
 
-wait.until(EC.element_to_be_clickable((By.ID, "day")))  # sync
+    print("\n$$$...........DONE...........$$$")
 
-# birthday and gender forms
-print("\n$$$...........FILLING ACCOUNT BIRTHDAY AND AGE...........$$$")
-browser.find_element(By.ID, "day").send_keys(str(random.randint(1, 28)))
-month = Select(browser.find_element(By.ID, 'month'))
-month.select_by_index(random.randint(1, 12))
-# calculate the birth year of a 20 to 40 years old person
-actual_year = datetime.now().year
-birth_year = random.randint(actual_year - 40, actual_year - 20)
-browser.find_element(By.ID, "year").send_keys(str(birth_year))
+    # Sync with brithday and age webpage
+    wait.until(EC.element_to_be_clickable((By.ID, "day")))  # sync
 
-# gender
-gender_select = Select(browser.find_element(By.ID, "gender"))
-gender_select.select_by_index(gender)
-browser.find_element(By.ID, "birthdaygenderNext").click()
-print("\n$$$...........DONE...........$$$")
+    # birthday and gender forms
+    print("\n$$$...........FILLING ACCOUNT BIRTHDAY AND AGE...........$$$")
+    browser.find_element(By.ID, "day").send_keys(str(random.randint(1, 28)))
+    month = Select(browser.find_element(By.ID, 'month'))
+    month.select_by_index(random.randint(1, 12))
 
-wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Create a Gmail address')]")))  # sync
+    # calculate the birth year of a 20 to 40 years old person for more "natural accounts"
+    actual_year = datetime.now().year
+    birth_year = random.randint(actual_year - 40, actual_year - 20)
+    browser.find_element(By.ID, "year").send_keys(str(birth_year))
 
-# create new email address
-print("\n$$$...........CREATING NEW EMAIL ADDRESS...........$$$")
-# the elements on this page have their ids either dynamically generated or are not set. Used xpath instead
-browser.find_element(By.XPATH, "//*[contains(text(),'Create a Gmail address')]").click()
-browser.find_element(By.XPATH, "//*[contains(text(),'Next')]").click()
-# submit new email address
-wait.until(EC.element_to_be_clickable((By.NAME, "Username")))  # sync
-# must be guaranteed to be unique
-browser.find_element(By.NAME, "Username").send_keys(first_name + surname)
+    # gender
+    gender_select = Select(browser.find_element(By.ID, "gender"))
+    gender_select.select_by_index(gender)
+    browser.find_element(By.ID, "birthdaygenderNext").click()
+    print("\n$$$...........DONE...........$$$")
 
-print("\n$$$...........DONE...........$$$")
+    # Sync with email address webpage
+    wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Create a Gmail address')]")))  # sync
+
+    # create new email address
+    print("\n$$$...........CREATING NEW EMAIL ADDRESS...........$$$")
+    # the elements on this page have their ids either dynamically generated or are not set. Used xpath instead
+    browser.find_element(By.XPATH, "//*[contains(text(),'Create a Gmail address')]").click()
+    browser.find_element(By.XPATH, "//*[contains(text(),'Next')]").click()
+
+    # TODO: add behaviour in case Google auto suggests addresses instead of prompting
+    
+    # submit new email address
+    wait.until(EC.element_to_be_clickable((By.NAME, "Username")))  # sync
+    # must be guaranteed to be unique
+    browser.find_element(By.NAME, "Username").send_keys(first_name + surname)
+
+if __name__ == "__main__":
+    main()
