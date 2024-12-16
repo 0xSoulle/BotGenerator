@@ -30,11 +30,6 @@ def main():
 
     print("\n$$$............GENERATING " + str(number_bots) + " GOOGLE ACCOUNTS...........$$$")
 
-<<<<<<< Updated upstream
-    user_agent = generate_random_useragent():
-    browser = setup_webdriver(user_agent)
-    print("get req")
-=======
     for bot in range(number_bots):
         tid = threading.Thread(target=bot_thread)
         tid.start()
@@ -50,16 +45,13 @@ def bot_thread():
     browser = setup_webdriver(user_agent)
 
     # Connect to google account creation page
->>>>>>> Stashed changes
+
     browser.get(CREATE_GOOGLE_ACCOUNT_URL)
     print("\n$$$...........CONNECTED TO GOOGLE SERVICE...........$$$")
 
     fill_forms(browser)
-<<<<<<< Updated upstream
-    print("\n$$$...........DONE...........$$$")
-=======
 
->>>>>>> Stashed changes
+    print("\n$$$...........DONE...........$$$")
 
 
 
@@ -78,15 +70,11 @@ def generate_random_useragent():
 def setup_webdriver(user_agent):
     # options = Options()
     # firefox_profile = FirefoxProfile()
-<<<<<<< Updated upstream
-=======
     # firefox_profile.set_preference("marionette", False)
->>>>>>> Stashed changes
     # firefox_profile.set_preference("general.useragent.override", user_agent)
     # options.profile = firefox_profile
 
     return webdriver.Firefox()
-<<<<<<< Updated upstream
 
 
 
@@ -152,7 +140,7 @@ def fill_forms(browser):
 
 if __name__ == "__main__":
     main()
-=======
+
 
 
 def fill_forms(browser):
@@ -225,4 +213,4 @@ def fill_forms(browser):
 
 if __name__ == "__main__":
     main()
->>>>>>> Stashed changes
+
