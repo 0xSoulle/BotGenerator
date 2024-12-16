@@ -1,3 +1,5 @@
+import threading
+
 from nomes import name_generator
 
 import sys
@@ -13,12 +15,14 @@ from selenium.webdriver.support.select import Select
 
 CREATE_GOOGLE_ACCOUNT_URL = "https://accounts.google.com/signup/v2/createaccount?flowName=GlifWebSignIn&flowEntry=SignUp"
 
+
+
 def main():
     print("\n$$$..............EXECUTING.............$$$")
     number_bots = 0
     # Validate user inputs
     if len(sys.argv) == 2 and sys.argv[1].isdigit():
-        number_bots = sys.argv[1]
+        number_bots = int(sys.argv[1])
     else:
         print("!!! USAGE: python generate_bots.py <number of bots> !!!")
         number_bots = int(input("ENTER NUMBER OF BOTS: "))
@@ -26,14 +30,36 @@ def main():
 
     print("\n$$$............GENERATING " + str(number_bots) + " GOOGLE ACCOUNTS...........$$$")
 
+<<<<<<< Updated upstream
     user_agent = generate_random_useragent():
     browser = setup_webdriver(user_agent)
     print("get req")
+=======
+    for bot in range(number_bots):
+        tid = threading.Thread(target=bot_thread)
+        tid.start()
+
+
+
+
+def bot_thread():
+    # Get a user agent from db
+    user_agent = generate_random_useragent()
+
+    # setup selenium driver with the user agent aaaaaaaaa
+    browser = setup_webdriver(user_agent)
+
+    # Connect to google account creation page
+>>>>>>> Stashed changes
     browser.get(CREATE_GOOGLE_ACCOUNT_URL)
     print("\n$$$...........CONNECTED TO GOOGLE SERVICE...........$$$")
 
     fill_forms(browser)
+<<<<<<< Updated upstream
     print("\n$$$...........DONE...........$$$")
+=======
+
+>>>>>>> Stashed changes
 
 
 
@@ -52,10 +78,15 @@ def generate_random_useragent():
 def setup_webdriver(user_agent):
     # options = Options()
     # firefox_profile = FirefoxProfile()
+<<<<<<< Updated upstream
+=======
+    # firefox_profile.set_preference("marionette", False)
+>>>>>>> Stashed changes
     # firefox_profile.set_preference("general.useragent.override", user_agent)
     # options.profile = firefox_profile
 
     return webdriver.Firefox()
+<<<<<<< Updated upstream
 
 
 
@@ -121,3 +152,77 @@ def fill_forms(browser):
 
 if __name__ == "__main__":
     main()
+=======
+
+
+def fill_forms(browser):
+    wait = WebDriverWait(browser, 20)
+    wait.until(EC.element_to_be_clickable((By.NAME, "firstName")))  # sync
+
+
+    gender = random.randint(1, 2)
+    first_name, surname = name_generator.genName(gender)
+    # name form
+    print("\n$$$...........FILLING ACCOUNT NAME...........$$$")
+    browser.find_element(By.NAME, "firstName").clear()
+    browser.find_element(By.NAME, "firstName").send_keys(first_name)
+    browser.find_element(By.NAME, "lastName").clear()
+    browser.find_element(By.NAME, "lastName").send_keys(surname)
+    # submit the form
+    browser.find_element(By.ID, "collectNameNext").click()
+    print("\n$$$...........DONE...........$$$")
+
+    wait.until(EC.element_to_be_clickable((By.ID, "day")))  # sync
+
+    # birthday and gender forms
+    print("\n$$$...........FILLING ACCOUNT BIRTHDAY AND AGE...........$$$")
+    browser.find_element(By.ID, "day").send_keys(str(random.randint(1, 28)))
+    month = Select(browser.find_element(By.ID, 'month'))
+    month.select_by_index(random.randint(1, 12))
+    # calculate the birth year of a 20 to 40 years old person
+    actual_year = datetime.now().year
+    birth_year = str(random.randint(actual_year - 40, actual_year - 20))
+    browser.find_element(By.ID, "year").send_keys(str(birth_year))
+
+    # gender
+    gender_select = Select(browser.find_element(By.ID, "gender"))
+    gender_select.select_by_index(gender)
+    browser.find_element(By.ID, "birthdaygenderNext").click()
+    print("\n$$$...........DONE...........$$$")
+
+    # create new email address
+    print("\n$$$...........CREATING NEW EMAIL ADDRESS...........$$$")
+
+    wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Create a Gmail address')]")))  # sync
+
+
+    # the elements on this page have their ids either dynamically generated or are not set. Used xpath instead
+    browser.find_element(By.XPATH, "//*[contains(text(),'Create a Gmail address')]").click()
+    browser.find_element(By.XPATH, "//*[contains(text(),'Next')]").click()
+
+    # check for Gmail suggestions
+    suggestion_page = browser.find_element(By.XPATH, "//*[contains(text(),'Create a Gmail address')]")
+    if suggestion_page is not None:
+        # click second option (looks natural more often)
+        email_suggestions = browser.find_elements(By.XPATH, "//*[ends-with('.*@gmail.com')]")
+        email_suggestions[1].click()
+        # submit
+        browser.find_element(By.XPATH, "//*[contains(text(),'Next')]").click()
+    else:
+        # submit an email address
+        wait.until(EC.element_to_be_clickable((By.NAME, "Username")))  # sync
+
+        # must be guaranteed to be unique
+        magic = chr(random.randrange(65, 90))
+        base = first_name + "." + surname
+        address = magic + birth_year[:2] + "." + base + "." + birth_year[2:] + magic
+
+        browser.find_element(By.NAME, "Username").send_keys(address)
+
+    print("\n$$$...........DONE...........$$$")
+
+
+
+if __name__ == "__main__":
+    main()
+>>>>>>> Stashed changes
