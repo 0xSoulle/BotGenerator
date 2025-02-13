@@ -1,6 +1,6 @@
 import threading
 
-from nomes import name_generator
+from bot_info import info_generator
 
 import sys
 import random
@@ -73,21 +73,18 @@ def generate_random_useragent():
 
 # Create Firefox webdriver with random user agent
 def setup_webdriver(user_agent):
-    #options = Options()
-    #options.add_argument("-headless")
-    # firefox_profile.set_preference("general.useragent.override", user_agent)
-    # options.profile = firefox_profile
+    # run browser headless mode
+    options = Options()
+    #options.add_argument("--headless")
 
-    return webdriver.Firefox()
+    return webdriver.Firefox(options)
 
 
 def fill_forms(browser):
+
     # define characteristics for bot account
-    gender = random.randint(1, 2)
-    first_name, surname = name_generator.genName(gender)
-    actual_year = datetime.now().year
+    gender,first_name, surname,year, month, day = info_generator.gen_info()
     # calculate the birth year of a 20 to 40 years old person
-    birth_year = str(random.randint(actual_year - 40, actual_year - 20))
 
     wait = WebDriverWait(browser, 10)
 
@@ -107,11 +104,12 @@ def fill_forms(browser):
     # birthday and gender forms
     print("\n$$$...........FILLING ACCOUNT BIRTHDAY AND AGE...........$$$")
     brithday = wait.until(EC.element_to_be_clickable((By.ID, "day")))  # sync
-    brithday.send_keys(str(random.randint(1, 28)))
-    month = Select(browser.find_element(By.ID, 'month'))
+    brithday.send_keys(day)
+    month_element = wait.until(EC.element_to_be_clickable(browser.find_element(By.ID, "month")))
+    month = Select(month_element)
     month.select_by_index(random.randint(1, 12))
 
-    browser.find_element(By.ID, "year").send_keys(str(birth_year))
+    browser.find_element(By.ID, "year").send_keys(year)
 
     # gender
     gender_select = Select(browser.find_element(By.ID, "gender"))
@@ -122,18 +120,20 @@ def fill_forms(browser):
     # create new email address
     print("\n$$$...........CREATING NEW EMAIL ADDRESS...........$$$")
 
-    wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Create a Gmail address')]")))  # sync
+    create_gmail_option = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Create a Gmail address')]")))  # sync
 
     # the elements on this page have their ids either dynamically generated or are not set. Used xpath instead
-    browser.find_element(By.XPATH, "//*[contains(text(),'Create a Gmail address')]").click()
+    create_gmail_option.click()
     browser.find_element(By.XPATH, "//*[contains(text(),'Next')]").click()
 
     # check for Gmail suggestions
-    suggestion_page = browser.find_element(By.XPATH, "//*[contains(text(),'Create a Gmail address')]")
-    if suggestion_page is not None:
+    html_content = browser.page_source()
+
+    if "Choose your Gmail address" in html_content:
         # click second option (looks natural more often)
-        email_suggestions = browser.find_elements(By.XPATH, "//*[ends-with('.*@gmail.com')]")
+        email_suggestions = browser.find_elements(By.XPATH, "//*[contains(text(),'.*@gmail.com')]")
         email_suggestions[1].click()
+        email_suggestions[1].text()
         # submit
         browser.find_element(By.XPATH, "//*[contains(text(),'Next')]").click()
     else:
