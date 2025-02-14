@@ -4,7 +4,6 @@ from bot_info import info_generator
 
 import sys
 import random
-from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
@@ -127,7 +126,7 @@ def fill_forms(browser):
     browser.find_element(By.XPATH, "//*[contains(text(),'Next')]").click()
 
     # check for Gmail suggestions
-    html_content = browser.page_source()
+    html_content = browser.page_source
 
     if "Choose your Gmail address" in html_content:
         # click second option (looks natural more often)
@@ -143,7 +142,7 @@ def fill_forms(browser):
         # must be guaranteed to be unique
         magic = chr(random.randrange(65, 90))
         base = first_name + "." + surname
-        address = magic + birth_year[:2] + "." + base + "." + birth_year[2:] + magic
+        address = magic + year[:2] + "." + base + "." + year[2:] + magic
 
         browser.find_element(By.NAME, "Username").send_keys(address)
 
