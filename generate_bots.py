@@ -1,9 +1,8 @@
-import threading
-
 from bot_info import info_generator
 
 import sys
 import random
+import threading
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
@@ -46,16 +45,15 @@ def bot_thread():
     browser = setup_webdriver(user_agent)
 
     # Connect to google account creation page
-    try:
-        browser.get(CREATE_GOOGLE_ACCOUNT_URL)
-        print("\n$$$...........CONNECTED TO GOOGLE SERVICE...........$$$")
+    
+    browser.get(CREATE_GOOGLE_ACCOUNT_URL)
+    print("\n$$$...........CONNECTED TO GOOGLE SERVICE...........$$$")
 
-        fill_forms(browser)
+    fill_forms(browser)
 
-        print("\n$$$...........FINNISHED CREATING BOT...........$$$")
-    finally:
-        # close the browser
-        browser.quit()
+    print("\n$$$...........FINNISHED CREATING BOT...........$$$")
+  
+ 
 
 
 
@@ -125,16 +123,23 @@ def fill_forms(browser):
     create_gmail_option.click()
     browser.find_element(By.XPATH, "//*[contains(text(),'Next')]").click()
 
-    # check for Gmail suggestions
-    html_content = browser.page_source
-
-    if "Choose your Gmail address" in html_content:
-        # click second option (looks natural more often)
-        email_suggestions = browser.find_elements(By.XPATH, "//*[contains(text(),'.*@gmail.com')]")
-        email_suggestions[1].click()
-        email_suggestions[1].text()
-        # submit
-        browser.find_element(By.XPATH, "//*[contains(text(),'Next')]").click()
+    # Check for Gmail suggestion
+    gmail_suggestions = browser.find_elements(By.XPATH, "//*[contains(text(),'Choose your Gmail address')]")
+    if len(gmail_suggestions) > 0:
+        # Wait for and get all Gmail address suggestions
+        wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "li[role='radio']")))
+        email_suggestions = browser.find_elements(By.CSS_SELECTOR, "li[role='radio']")
+        
+        # Select the second suggestion if available, otherwise the first
+        suggestion_to_click = email_suggestions[1] if len(email_suggestions) > 1 else email_suggestions[0]
+        suggestion_to_click.click()
+        
+        # Store the selected email (might be useful later)
+        selected_email = suggestion_to_click.text.strip()
+        print(f"\n$$$...........SELECTED EMAIL: {selected_email}...........$$$")
+        
+        # Wait for and click the Next button
+        wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Next')]"))).click()
     else:
         # submit an email address
         wait.until(EC.element_to_be_clickable((By.NAME, "Username")))  # sync
@@ -146,6 +151,9 @@ def fill_forms(browser):
 
         browser.find_element(By.NAME, "Username").send_keys(address)
 
+     # Wait for and click the Next button
+    wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(),'Next')]"))).click()
+    
     print("\n$$$...........DONE...........$$$")
 
 

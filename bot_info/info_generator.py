@@ -1,6 +1,4 @@
-import random
 import requests
-import json
 
 def gen_info():
     # get new fake profile from API
